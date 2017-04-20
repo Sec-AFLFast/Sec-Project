@@ -104,7 +104,8 @@ enum {
   /* 02 */ EXPLORE,                   /* Exploration-based constant sch.  */
   /* 03 */ LIN,                       /* Linear schedule                  */
   /* 04 */ QUAD,                      /* Quadratic schedule               */
-  /* 05 */ EXPLOIT                    /* AFL's exploitation-based const.  */
+  /* 05 */ TRIALA,                      /* Customized schedule */
+  /* 06 */ EXPLOIT                    /* AFL's exploitation-based const.  */
 };
 
 EXP_ST u8  skip_deterministic,        /* Skip deterministic stages?       */
@@ -7953,11 +7954,11 @@ int main(int argc, char** argv) {
           schedule = LIN;
         } else if (!stricmp(optarg, "quad")) {
           schedule = QUAD;
+        } else if (!stricmp(optarg, "triala")) {
+            // add first trial mode a with 2 to the power of (s(i)/f(i))
+            schedule = TRIALA;
         } else if (!stricmp(optarg, "explore")) {
           schedule = EXPLORE;
-      } else if (!stricmp(optarg, "triala")) {
-          // add first trial mode a with 2 to the power of (s(i)/f(i))
-          schedule = TRIALA;
       }
         break;
 

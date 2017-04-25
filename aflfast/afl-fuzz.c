@@ -105,7 +105,8 @@ enum {
   /* 03 */ LIN,                       /* Linear schedule                  */
   /* 04 */ QUAD,                      /* Quadratic schedule               */
   /* 05 */ TRIALA,                      /* Customized schedule */
-  /* 06 */ EXPLOIT                    /* AFL's exploitation-based const.  */
+  /* 06 */ TRIALB,                      /* Customized schedule 2 */
+  /* 07 */ EXPLOIT                    /* AFL's exploitation-based const.  */
 };
 
 EXP_ST u8  skip_deterministic,        /* Skip deterministic stages?       */
@@ -4782,6 +4783,13 @@ static u32 calculate_score(struct queue_entry* q) {
             factor = MAX_FACTOR / (fuzz == 0 ? 1 : next_p2 (fuzz));
         break;
 
+    case TRIALB:
+      if (q->fuzz_level < 16) {
+         factor = ((u32) (1 << q->fuzz_level)) / ((u32)(fuzz == 0 ? 1 : fuzz * fuzz));
+      } else
+        factor = MAX_FACTOR / (fuzz == 0 ? 1 : next_p2 (fuzz));
+      break;      
+
     default:
       PFATAL ("Unkown Power Schedule");
   }
@@ -7098,7 +7106,7 @@ static void usage(u8* argv0) {
        "Execution control settings:\n\n"
 
        "  -p schedule   - power schedules recompute a seed's performance score.\n"
-       "                  <fast (default), coe, explore, lin, quad, triala (customized), or exploit>\n"
+       "                  <fast (default), coe, explore, lin, quad, triala (customized), trialb (customized), or exploit>\n"
        "  -f file       - location read by the fuzzed program (stdin)\n"
        "  -t msec       - timeout for each run (auto-scaled, 50-%u ms)\n"
        "  -m megs       - memory limit for child process (%u MB)\n"
@@ -7957,6 +7965,8 @@ int main(int argc, char** argv) {
         } else if (!stricmp(optarg, "triala")) {
             // add first trial mode a with 2 to the power of (s(i)/f(i))
             schedule = TRIALA;
+        } else if (!stricmp(optarg, "trialb")) {
+            schedule = TRIALB;
         } else if (!stricmp(optarg, "explore")) {
           schedule = EXPLORE;
       }
@@ -7993,6 +8003,7 @@ int main(int argc, char** argv) {
     case QUAD:    OKF ("Using quadratic power schedule (QUAD)"); break;
     // customized power schedule
     case TRIALA:    OKF ("Using customized power schedule (TRIALA)"); break;
+    case TRIALB:    OKF ("Using customized power schedule (TRIALB)"); break;
     case EXPLORE: OKF ("Using exploration-based constant power schedule (EXPLORE)"); break;
     default : FATAL ("Unkown power schedule"); break;
   }

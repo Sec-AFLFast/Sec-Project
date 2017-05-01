@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define BUF_LEN 4000 
+#define BUF_LEN 1500 
 #define SMALL_BUF_LEN 14
 
 int eval( char* str ) {

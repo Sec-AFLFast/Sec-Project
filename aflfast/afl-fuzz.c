@@ -107,6 +107,11 @@ enum {
   /* 05 */ TRIALA,                      /* Customized schedule */
   /* 06 */ TRIALB,                      /* Customized schedule 2 */
   /* 07 */ EXPLOIT                    /* AFL's exploitation-based const.  */
+  /* 08 */ MCOE,                      /* Customized schedule 2 */
+  /* 09 */ MINS,                      /* Customized schedule 2 */
+  /* 10 */ AVERAGE,                      /* Customized schedule 2 */
+  /* 11 */ HYBRID,                      /* Customized schedule 2 */
+
 };
 
 EXP_ST u8  skip_deterministic,        /* Skip deterministic stages?       */
@@ -4729,6 +4734,14 @@ static u32 calculate_score(struct queue_entry* q) {
   u32 fuzz_total, n_paths, fuzz_mu;
   u32 factor = 1;
   u32 expon_num;
+  u32 mins = 0;
+  u32 aver = 0;
+  u32 temp1;
+  u32 temp2;
+  u32 temp3;
+  u32 temp4;
+  u64 cur_ms;
+
   switch (schedule) {
 
     case EXPLORE:
@@ -4788,7 +4801,84 @@ static u32 calculate_score(struct queue_entry* q) {
          factor = ((u32) (1 << q->fuzz_level)) / ((u32)(fuzz == 0 ? 1 : fuzz * fuzz));
       } else
         factor = MAX_FACTOR / (fuzz == 0 ? 1 : next_p2 (fuzz));
-      break;      
+      break;
+
+      case MCOE:
+        fuzz_total = 0;
+        n_paths = 0;
+
+        struct queue_entry *queue_it = queue;
+        while (queue_it) {
+          fuzz_total += getFuzz(queue_it->exec_cksum);
+          n_paths ++;
+          queue_it = queue_it -> next;
+        }
+
+        fuzz_mu = fuzz_total / n_paths;
+        if (fuzz <= fuzz_mu) {
+          if (q->fuzz_level < 16)
+            factor = ((u32) (1 << q->fuzz_level));
+          else
+            factor = MAX_FACTOR;
+        } else {
+          factor = 1;
+        }
+        break;
+
+        case MINS:
+            if (q->fuzz_level < 16) {
+                factor = ((u32) (1 << q->fuzz_level)) / (fuzz == 0 ? 1 : fuzz);
+            } else
+                factor = MAX_FACTOR / (fuzz == 0 ? 1 : next_p2 (fuzz));
+
+            if ( factor < (q->fuzz_level / (fuzz == 0 ? 1 : fuzz)))
+                mins = factor;
+            else
+                mins = (q->fuzz_level / (fuzz == 0 ? 1 : fuzz));
+
+            if(mins > (q->fuzz_level * q->fuzz_level / (fuzz == 0 ? 1 : fuzz)))
+                mins = q->fuzz_level * q->fuzz_level / (fuzz == 0 ? 1 : fuzz);
+            factor = mins;
+          break;
+
+        case AVERAGE:
+            if (q->fuzz_level < 16) {
+                temp1 = ((u32) (1 << q->fuzz_level)) / (fuzz == 0 ? 1 : fuzz);
+            } else
+                temp1 = MAX_FACTOR / (fuzz == 0 ? 1 : next_p2 (fuzz));
+
+            temp2 = (q->fuzz_level / (fuzz == 0 ? 1 : fuzz)); // linear
+            temp3 = q->fuzz_level * q->fuzz_level / (fuzz == 0 ? 1 : fuzz); //quad
+
+            fuzz_total = 0;
+            n_paths = 0;
+
+            struct queue_entry *queue_it = queue;
+            while (queue_it) {
+              fuzz_total += getFuzz(queue_it->exec_cksum);
+              n_paths ++;
+              queue_it = queue_it -> next;
+            }
+
+            fuzz_mu = fuzz_total / n_paths;
+            if (fuzz <= fuzz_mu) {
+              if (q->fuzz_level < 16)
+                temp4 = ((u32) (1 << q->fuzz_level));
+              else
+                temp4 = MAX_FACTOR;
+            } else {
+              temp4 = 0;
+            }
+            factor = (temp1 + temp2 + temp3 + temp4) / 4;
+            break;
+
+        case HYBRID:
+            cur_ms = get_cur_time();
+            // if run over 5 hours, switch to exponential
+            if(cur_ms - start_time > 5 * 60 * 60 * 1000) {
+                schedule = FAST;
+            }
+            break;
 
     default:
       PFATAL ("Unkown Power Schedule");
@@ -7106,7 +7196,7 @@ static void usage(u8* argv0) {
        "Execution control settings:\n\n"
 
        "  -p schedule   - power schedules recompute a seed's performance score.\n"
-       "                  <fast (default), coe, explore, lin, quad, triala (customized), trialb (customized), or exploit>\n"
+       "                  <fast (default), coe, explore, lin, quad, triala (customized), trialb (customized), mcoe (modified coe schedule), mins (minimal of the four schedule), average (average of the four schelues), hybrid (start with explore and then switch to fast), or exploit>\n"
        "  -f file       - location read by the fuzzed program (stdin)\n"
        "  -t msec       - timeout for each run (auto-scaled, 50-%u ms)\n"
        "  -m megs       - memory limit for child process (%u MB)\n"
@@ -7966,7 +8056,24 @@ int main(int argc, char** argv) {
             // add first trial mode a with 2 to the power of (s(i)/f(i))
             schedule = TRIALA;
         } else if (!stricmp(optarg, "trialb")) {
+            // second trial mode divided by f(i) squared
             schedule = TRIALB;
+        } else if (!stricmp(optarg, "mcoe")) {
+            // mcoe (modified coe schedule), set to 1 when f(i) > u
+            schedule = MCOE;
+
+        } else if (!stricmp(optarg, "mins")) {
+            // mins (minimal of the four schedule) for p(i)
+            schedule = MINS;
+
+        } else if (!stricmp(optarg, "average")) {
+            // average (average of the four schelues) for p(i)
+            schedule = AVERAGE;
+
+        } else if (!stricmp(optarg, "hybrid")) {
+            // hybrid (start with explore and then switch to fast)
+            schedule = HYBRID;
+
         } else if (!stricmp(optarg, "explore")) {
           schedule = EXPLORE;
       }
@@ -8004,8 +8111,14 @@ int main(int argc, char** argv) {
     // customized power schedule
     case TRIALA:    OKF ("Using customized power schedule (TRIALA)"); break;
     case TRIALB:    OKF ("Using customized power schedule (TRIALB)"); break;
+    case MCOE:    OKF ("Using modified coe schedule (MCOE)"); break;
+    case MINS:    OKF ("Using customized mins schedule (MINS)"); break;
+    case AVERAGE:    OKF ("Using customized power schedule (AVERAGE)"); break;
+    case HYBRID:    OKF ("Using customized power schedule (HYBRID)"); break;
+
     case EXPLORE: OKF ("Using exploration-based constant power schedule (EXPLORE)"); break;
     default : FATAL ("Unkown power schedule"); break;
+
   }
 
   if (getenv("AFL_NO_FORKSRV"))    no_forkserver    = 1;

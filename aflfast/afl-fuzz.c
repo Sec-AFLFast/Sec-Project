@@ -4735,7 +4735,7 @@ static u32 calculate_score(struct queue_entry* q) {
   u32 factor = 1;
   u32 expon_num;
   u32 mins = 0;
-  u32 aver = 0;
+  // u32 aver = 0;
   u32 temp1;
   u32 temp2;
   u32 temp3;
@@ -4807,11 +4807,11 @@ static u32 calculate_score(struct queue_entry* q) {
         fuzz_total = 0;
         n_paths = 0;
 
-        struct queue_entry *queue_it = queue;
-        while (queue_it) {
-          fuzz_total += getFuzz(queue_it->exec_cksum);
+        struct queue_entry *queue_it_2 = queue;
+        while (queue_it_2) {
+          fuzz_total += getFuzz(queue_it_2->exec_cksum);
           n_paths ++;
-          queue_it = queue_it -> next;
+          queue_it_2 = queue_it_2 -> next;
         }
 
         fuzz_mu = fuzz_total / n_paths;
@@ -4853,11 +4853,11 @@ static u32 calculate_score(struct queue_entry* q) {
             fuzz_total = 0;
             n_paths = 0;
 
-            struct queue_entry *queue_it = queue;
-            while (queue_it) {
-              fuzz_total += getFuzz(queue_it->exec_cksum);
+            struct queue_entry *queue_it_3 = queue;
+            while (queue_it_3) {
+              fuzz_total += getFuzz(queue_it_3->exec_cksum);
               n_paths ++;
-              queue_it = queue_it -> next;
+              queue_it_3 = queue_it_3 -> next;
             }
 
             fuzz_mu = fuzz_total / n_paths;

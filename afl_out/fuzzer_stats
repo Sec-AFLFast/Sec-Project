@@ -1,3 +1,32 @@
+<<<<<<< HEAD
+start_time        : 1493584071
+last_update       : 1493584276
+fuzzer_pid        : 1304
+cycles_done       : 4
+execs_done        : 729976
+execs_per_sec     : 3564.45
+paths_total       : 81
+paths_favored     : 15
+paths_found       : 80
+paths_imported    : 0
+max_depth         : 6
+cur_path          : 69
+pending_favs      : 0
+pending_total     : 26
+variable_paths    : 0
+stability         : 100.00%
+bitmap_cvg        : 0.17%
+unique_crashes    : 20
+unique_hangs      : 0
+last_path         : 1493584191
+last_crash        : 1493584096
+last_hang         : 0
+execs_since_crash : 637496
+exec_timeout      : 20
+afl_banner        : ass1
+afl_version       : 2.41b
+command_line      : ./afl-fuzz -i ../afl_in -o ../afl_out ../TestCases/ass1 @@
+=======
 start_time        : 1493321361
 last_update       : 1493321423
 fuzzer_pid        : 22093
@@ -25,3 +54,4 @@ exec_timeout      : 20
 afl_banner        : ass1
 afl_version       : 2.39b
 command_line      : ./afl-fuzz -p triala -i ../afl_in -o ../afl_out ../TestCases/ass1 @@
+>>>>>>> c9ea3de2b6d4f325878080b4245790e7fd2d2529

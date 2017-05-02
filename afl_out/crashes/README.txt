@@ -1,6 +1,10 @@
 Command line used to find this crash:
 
+<<<<<<< HEAD
+./afl-fuzz -i ../afl_in -o ../afl_out ../TestCases/ass1 @@
+=======
 ./afl-fuzz -p triala -i ../afl_in -o ../afl_out ../TestCases/ass1 @@
+>>>>>>> c9ea3de2b6d4f325878080b4245790e7fd2d2529
 
 If you can't reproduce a bug outside of afl-fuzz, be sure to set the same
 memory limit. The limit used for this fuzzing session was 50.0 MB.

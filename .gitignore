@@ -1,3 +1,4 @@
 *.gcno
 *.gcda
 *.out
+afl_out/*

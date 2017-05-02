@@ -48,7 +48,7 @@
 
 /* Default memory limit for child process (MB): */
 
-#ifndef __x86_64__ 
+#ifndef __x86_64__
 #  define MEM_LIMIT         25
 #else
 #  define MEM_LIMIT         50
@@ -92,7 +92,7 @@
 #define MAX_FACTOR          (POWER_BETA * 32)
 
 /* Maximum stacking for havoc-stage tweaks. The actual value is calculated
-   like this: 
+   like this:
 
    n = random between 1 and HAVOC_STACK_POW2
    stacking = 2^n
@@ -193,7 +193,8 @@
 /* Fuzzer stats file and plot update intervals (sec): */
 
 #define STATS_UPDATE_SEC    60
-#define PLOT_UPDATE_SEC     5
+// write to the log file every 5 minutes
+#define PLOT_UPDATE_SEC     300
 
 /* Smoothing divisor for CPU load and exec speed stats (1 - no smoothing). */
 

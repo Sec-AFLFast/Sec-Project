@@ -106,7 +106,7 @@ enum {
   /* 04 */ QUAD,                      /* Quadratic schedule               */
   /* 05 */ TRIALA,                      /* Customized schedule */
   /* 06 */ TRIALB,                      /* Customized schedule 2 */
-  /* 07 */ EXPLOIT                    /* AFL's exploitation-based const.  */
+  /* 07 */ EXPLOIT,                    /* AFL's exploitation-based const.  */
   /* 08 */ MCOE,                      /* Customized schedule 2 */
   /* 09 */ MINS,                      /* Customized schedule 2 */
   /* 10 */ AVERAGE,                      /* Customized schedule 2 */

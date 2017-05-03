@@ -19,14 +19,20 @@ int f(char* str) {
 
 int main(int argc, char* argv[])
 {
+    int i = 0;
+    int j = 0;
     if (argc == 2) {
         FILE *file = fopen( argv[1], "r" );
         if ( file != NULL ) {
             char str[BUF_LEN];
             if ( fgets( str, BUF_LEN, file ) != NULL) {
-                if ( f(str) == REF_VAL ) {
-                    char buf[SMALL_BUF_LEN];
-                    strcpy( buf, str );
+                j = f(str);
+                for (i = 0; i < 1000; i++){
+                    j = j + i % 7;
+                    if ( j % REF_VAL == 0) {
+                        char buf[SMALL_BUF_LEN];
+                        strcpy( buf, str );
+                    }
                 }
             }
             fclose( file );

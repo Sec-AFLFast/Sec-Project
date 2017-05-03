@@ -194,7 +194,7 @@
 
 #define STATS_UPDATE_SEC    60
 // write to the log file every 5 minutes
-#define PLOT_UPDATE_SEC     300
+#define PLOT_UPDATE_SEC     60
 
 /* Smoothing divisor for CPU load and exec speed stats (1 - no smoothing). */
 

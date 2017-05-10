@@ -4831,13 +4831,13 @@ static u32 calculate_score(struct queue_entry* q) {
             } else
                 factor = MAX_FACTOR / (fuzz == 0 ? 1 : next_p2 (fuzz));
 
-            if ( factor < (q->fuzz_level / (fuzz == 0 ? 1 : fuzz)))
+            if ( factor < (64 * q->fuzz_level / (fuzz == 0 ? 1 : fuzz)))
                 mins = factor;
             else
-                mins = (q->fuzz_level / (fuzz == 0 ? 1 : fuzz));
+                mins = (64 * q->fuzz_level / (fuzz == 0 ? 1 : fuzz));
 
-            if(mins > (q->fuzz_level * q->fuzz_level / (fuzz == 0 ? 1 : fuzz)))
-                mins = q->fuzz_level * q->fuzz_level / (fuzz == 0 ? 1 : fuzz);
+            if(mins > (16 * q->fuzz_level * q->fuzz_level / (fuzz == 0 ? 1 : fuzz)))
+                mins = 16 * q->fuzz_level * q->fuzz_level / (fuzz == 0 ? 1 : fuzz);
             factor = mins;
           break;
 
